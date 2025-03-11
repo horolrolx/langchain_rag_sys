@@ -12,9 +12,9 @@ from qdrant_client import QdrantClient
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from werkzeug.utils import secure_filename
+import uuid  # UUID 라이브러리 추가
 import os
 
-uploaded_pdfs = []  # 📌 업로드된 PDF 목록 저장
 UPLOAD_FOLDER = '/tmp'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -23,7 +23,7 @@ os.environ["OPENAI_API_KEY"] = "openai-api-key"
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True, origins=["http://172.21.166.164:3000"])
-qdrant_client = QdrantClient(url="http://172.21.166.164:6333")
+qdrant_client = QdrantClient(url="http://host.docker.internal:6333")
 embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -58,7 +58,7 @@ class OllamaLLM(LLM):
 
 def call_langchain_with_rag(question):
     embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
-    qdrant_client = QdrantClient(url="http://172.21.166.164:6333")
+    qdrant_client = QdrantClient(url="http://host.docker.internal:6333")
 
     collections = qdrant_client.get_collections().collections
     if "papers" not in [collection.name for collection in collections]:
@@ -87,7 +87,7 @@ def call_langchain_with_rag(question):
     answer = response["result"]  # 'result' 키에서 답변만 추출
     return answer
 
-@app.route('/upload_pdf', methods=['POST'])
+@app.route('/upload_pdf', methods=['POST', 'OPTIONS'])
 def upload_pdf():
     try:
         print("[INFO] 📂 파일 업로드 요청 수신됨.")
@@ -120,11 +120,11 @@ def upload_pdf():
             collection_name="pdf_files",
             points=[
                 {
-                    "id": hash(filename),  # ID를 해시 값으로 저장
+                    "id": str(uuid.uuid4()),  # ID를 해시 값으로 저장
                     "vector": [0.0],  # ✅ 최소 벡터 필요 (Qdrant 제한)
                     "payload": {"filename": file.filename}
                 }
-            ]
+            ],
         )
         print(f"[INFO] 📁 '{filename}' 파일명이 pdf_files 컬렉션에 저장됨.")
 
@@ -163,7 +163,7 @@ def upload_pdf():
 # 📌 추가: 'pdf_files' 컬렉션에서 업로드된 PDF 목록 반환
 @app.route('/get_uploaded_pdfs', methods=['GET'])
 def get_uploaded_pdfs():
-    qdrant_client = QdrantClient(url="http://172.21.166.164:6333")
+    qdrant_client = QdrantClient(url="http://host.docker.internal:6333")
     try:
         print("[INFO] 📜 업로드된 PDF 목록 요청 수신됨.")
         collections = qdrant_client.get_collections().collections

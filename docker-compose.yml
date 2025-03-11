@@ -1,0 +1,26 @@
+services:
+  ollama-web:
+    build:
+      context: ./ollama_front/ollama-web   # ollama-web의 경로 지정
+      dockerfile: Dockerfile                # ollama-web 내 Dockerfile 사용
+    ports:
+      - "3000:3000"
+    depends_on:
+      - ollama-back
+    runtime: nvidia  # GPU 지원을 추가
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all  # 모든 GPU를 사용하도록 설정
+
+  ollama-back:
+    build:
+      context: ./ollama_back  # ollama-back의 경로 지정
+      dockerfile: Dockerfile  # ollama-back 내 Dockerfile 사용
+    ports:
+      - "5000:5000"
+    runtime: nvidia  # GPU 지원을 추가
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all  # 모든 GPU를 사용하도록 설정
+
+networks:
+  ollama-network:
+    driver: bridge  # 기본 브리지 네트워크 사용

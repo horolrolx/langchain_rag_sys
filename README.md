@@ -15,6 +15,7 @@
 Model : exaone3.5:latest
 
 모델 변경 가능
+
 -----
 back 폴더에 .env 생성 후 아래 내용 입력할 것
 

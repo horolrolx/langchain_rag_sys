@@ -23,4 +23,4 @@ OPENAI_API_KEY=본인 API KEY
 
 QDRANT_URL=http://host.docker.internal:6333
 
-CORS_ORIGINS=http://172.21.166.164:3000,http://localhost:3000
+CORS_ORIGINS=http://본인 IP:3000,http://localhost:3000

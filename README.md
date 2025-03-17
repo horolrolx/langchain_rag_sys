@@ -20,5 +20,7 @@ Model : exaone3.5:latest
 back 폴더에 .env 생성 후 아래 내용 입력할 것
 
 OPENAI_API_KEY=본인 API KEY
+
 QDRANT_URL=http://host.docker.internal:6333
+
 CORS_ORIGINS=http://172.21.166.164:3000,http://localhost:3000

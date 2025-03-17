@@ -80,6 +80,8 @@ h1 {
 .chat-message {
   display: flex;
   flex-direction: column;
+  white-space: pre-wrap; /* 줄바꿈 유지 */
+  word-wrap: break-word; /* 긴 단어도 줄바꿈 */
   gap: 10px;
 }
 
@@ -770,4 +772,30 @@ input:checked + .slider:before {
 
 .copy-button:hover {
   background-color: #1976D2;
+}
+
+/* 로딩 메시지 스타일 */
+.loading-message {
+  margin-top: 20px;
+  font-size: 1.2rem;
+  color: #007bff;
+  font-weight: bold;
+  text-align: center;
+  animation: fadeInOut 2s infinite alternate; /* 애니메이션 효과 */
+}
+
+/* 로딩 메시지 애니메이션 */
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 }

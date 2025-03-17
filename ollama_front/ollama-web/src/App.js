@@ -118,17 +118,27 @@ const handleKeyPress = (e) => {
     setChatHistory((prevHistory) => [...prevHistory, { user: question }]);
 
     try {
-      const response = await axios.post('http://172.21.166.164:5000/ask', {
-        question,
-        rag_active: isRAGActive,
+      // RAG 상태에 따라 다른 엔드포인트로 요청
+      const url = isRAGActive 
+        ? 'http://172.21.166.164:5000/ask' // RAG가 활성화된 경우
+        : 'http://172.21.166.164:5000/ask'; // RAG가 비활성화된 경우
+
+      // RAG 활성화 상태에 따라 질문을 보내는 형식 변경
+      const response = await axios.post(url, { question: question }, {
+        headers: { 'Content-Type': 'application/json' },
+        withCredentials: true, // CORS 문제 해결을 위한 설정
       });
 
+      // RAG 응답 처리
+      const answerRAG = response.data.answer_crew;
       const answerLangchain = response.data.answer_langchain;
+      const finalAnswer = isRAGActive ? answerRAG : answerLangchain;
+
       setChatHistory((prevHistory) => [...prevHistory, { bot: answerLangchain }]);
       setQuestion('');
 
       if (isTTSActive && voices.length > 0) {
-        const speech = new SpeechSynthesisUtterance(answerLangchain);
+        const speech = new SpeechSynthesisUtterance(finalAnswer);
         const language = 'ko-KR';
         const selectedVoice = voices.find((voice) => voice.lang === language);
         speech.voice = selectedVoice || voices[0]; 
@@ -276,6 +286,7 @@ const handleKeyPress = (e) => {
       {loading ? '전송 중...' : '전송'}
     </button>
   </form>
+  {loading && <div className="loading-message">답변을 생성 중입니다...</div>}
   {notification && <div className="notification-message">{notification}</div>}
   {error && <div className="error-message">{error}</div>}
   <button className="voice-button" onClick={handleSpeechRecognition}>
@@ -308,17 +319,21 @@ const handleKeyPress = (e) => {
       <div className="upload-status">{uploadStatus}</div>
     </div>
 
-    {/* 업로드된 PDF 목록 */}
-    {uploadedPDFs.length > 0 && (
-      <div className="sidebar-uploaded-pdfs">
-        <h3>📚 업로드된 PDF 목록</h3>
+    <div className="sidebar-uploaded-pdfs">
+      <h3>📚 업로드된 PDF 목록</h3>
+      {uploadedPDFs.length > 0 ? (
         <ul>
           {uploadedPDFs.map((pdf, index) => (
             <li key={index}> {pdf}</li>
           ))}
         </ul>
-      </div>
-    )}
+      ) : (
+        <div className="no-pdf-message">
+          <span className="no-pdf-icon">❌</span>
+          <span className="no-pdf-text">업로드된 파일이 없습니다.</span>
+        </div>
+      )}
+    </div>
   </div>
 </div>
 

@@ -1,7 +1,7 @@
 # ollama_chatbot
 1. ollama_back > routes.py에서 IP인 172.21.166.164 이 부분 지우고 본인 IP or localhost로 변경
 
-2. ollama_back > config > Config.py도 1번과 똑같이 해줄것
+2. ollama_back > config > config.py도 1번과 똑같이 해줄것
 
 3. ollama_front > ollama-web > src > App.js에서도 1번과 똑같이 해줄 것
 
